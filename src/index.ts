@@ -2,9 +2,9 @@ import { fastStringArrayJoin } from 'foxts/fast-string-array-join';
 
 export interface CorsOptions {
   origin:
-  | string
-  | string[]
-  | ((origin: string) => Promise<string | undefined | null> | string | undefined | null),
+    | string
+    | string[]
+    | ((origin: string) => Promise<string | undefined | null> | string | undefined | null),
   allowMethods?: string[] | ((origin: string) => Promise<string[]> | string[]),
   allowHeaders?: string[],
   maxAge?: number,
