@@ -1,0 +1,37 @@
+{
+  "name": "cors-edge",
+  "version": "1.0.0",
+  "description": "CORS utility function for Cloudflare Workers, Fastly Edge Compute, Deno Deploy, Vercel Edge Runtime",
+  "repository": {
+    "url": "https://github.com/SukkaW/cors-edge"
+  },
+  "main": "index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "lint": "eslint --format=sukka ."
+  },
+  "keywords": [
+    "cors",
+    "cloudflare workers",
+    "fastly edge compute",
+    "deno deploy",
+    "vercel edge runtime"
+  ],
+  "author": "SukkaW <https://skk.moe>",
+  "license": "MIT",
+  "devDependencies": {
+    "@swc-node/register": "^1.11.1",
+    "@swc/core": "^1.13.5",
+    "@types/mocha": "^10.0.10",
+    "bunchee": "^6.6.2",
+    "eslint": "^9.38.0",
+    "eslint-config-sukka": "^7.3.5",
+    "eslint-formatter-sukka": "^7.3.5",
+    "expect": "^30.2.0",
+    "mocha": "^11.7.4",
+    "typescript": "^5.9.3"
+  },
+  "packageManager": "pnpm@10.18.3"
+}
