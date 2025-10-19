@@ -39,6 +39,7 @@
     "@swc-node/register": "^1.11.1",
     "@swc/core": "^1.13.5",
     "@types/mocha": "^10.0.10",
+    "bumpp": "^10.3.1",
     "bunchee": "^6.6.2",
     "eslint": "^9.38.0",
     "eslint-config-sukka": "^7.3.5",
