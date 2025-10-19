@@ -10,7 +10,8 @@
     "dist"
   ],
   "scripts": {
-    "lint": "eslint --format=sukka ."
+    "lint": "eslint --format=sukka .",
+    "test": "SWC_NODE_IGNORE_DYNAMIC=1 SWC_NODE_INLINE_SOURCE_MAP=1 mocha --require @swc-node/register --parallel --full-trace ./src/**/*.test.ts"
   },
   "keywords": [
     "cors",
@@ -33,5 +34,8 @@
     "mocha": "^11.7.4",
     "typescript": "^5.9.3"
   },
-  "packageManager": "pnpm@10.18.3"
+  "packageManager": "pnpm@10.18.3",
+  "dependencies": {
+    "foxts": "^4.6.0"
+  }
 }
