@@ -1,6 +1,6 @@
 {
   "name": "cors-edge",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "CORS utility function for Cloudflare Workers, Fastly Edge Compute, Deno Deploy, Vercel Edge Runtime",
   "repository": {
     "url": "https://github.com/SukkaW/cors-edge"
