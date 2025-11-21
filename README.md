@@ -1,6 +1,6 @@
 # cors-edge
 
-You are writing a very simple functions that runs on edge (either on Cloudflare Workers, Fastly Edge Compute, Vercel Edge Functions, etc.) consisting of less than 100 lines of code. You want to enable CORS (Cross-Origin Resource Sharing) for your endpoint but you do not want to pull in a heavy framework with middlewares just for that. This platform-agnostic package provides a simple way to add CORS support with minimal footprint (with only `1.4 KiB` added to your bundle).
+You are writing a very simple functions that runs on edge (either on Cloudflare Workers, Fastly Edge Compute, Vercel Edge Functions, etc.) consisting of less than 100 lines of code. You want to enable CORS (Cross-Origin Resource Sharing) for your endpoint but you do not want to pull in a heavy framework with middlewares just for that. This platform-agnostic package provides a simple way to add CORS support with minimal footprint (with only `1.3 KiB` added to your bundle).
 
 ## Installation
 
