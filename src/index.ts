@@ -1,7 +1,7 @@
 /* eslint-disable antfu/top-level-function -- bundle size hack */
 
 export interface CorsOptions {
-  origin:
+  origin?:
     | string
     | string[]
     | ((origin: string) => Promise<string | undefined | null> | string | undefined | null),
@@ -12,13 +12,6 @@ export interface CorsOptions {
   exposeHeaders?: string[]
 };
 
-const defaults: CorsOptions = {
-  origin: '*',
-  allowMethods: ['GET', 'HEAD', 'PUT', 'POST', 'DELETE', 'PATCH'],
-  allowHeaders: [],
-  exposeHeaders: []
-};
-
 const ACCESS_CONTROL_PREFIX = 'Access-Control-';
 const ALLOW_PREFIX = 'Allow-';
 const VARY = 'Vary';
@@ -26,7 +19,7 @@ const ORIGIN = 'Origin';
 const HEADERS = 'Headers';
 
 const setHeader = (response: Response, name: string, value: string) => response.headers.set(name, value);
-
+const getHeader = (request: Request, name: string) => request.headers.get(name);
 /**
  * A very simple CORS implementation for using in simple serverless workers
  *
@@ -44,14 +37,15 @@ const setHeader = (response: Response, name: string, value: string) => response.
  * }
  * ```
  */
-export const createCors = (options?: CorsOptions) => {
-  const opts = {
-    ...defaults,
-    ...options
-  };
-
+export const createCors = ({
+  origin: optsOrigin = '*',
+  allowMethods: optsAllowMethods = ['GET', 'HEAD', 'PUT', 'POST', 'DELETE', 'PATCH'],
+  allowHeaders: optsAllowHeaders,
+  maxAge: optsMaxAge,
+  credentials: optsCredentials = false,
+  exposeHeaders: optsExposeHeaders
+}: CorsOptions = {}) => {
   let findAllowOrigin: (origin: string) => Promise<string | undefined | null> | string | undefined | null;
-  const optsOrigin = opts.origin;
   if (typeof optsOrigin === 'string') {
     if (optsOrigin === '*') {
       findAllowOrigin = () => '*';
@@ -66,7 +60,6 @@ export const createCors = (options?: CorsOptions) => {
   }
 
   let findAllowMethods: (origin: string) => Promise<string[]> | string[];
-  const optsAllowMethods = opts.allowMethods;
   if (typeof optsAllowMethods === 'function') {
     findAllowMethods = optsAllowMethods;
   } else if (Array.isArray(optsAllowMethods)) {
@@ -76,10 +69,9 @@ export const createCors = (options?: CorsOptions) => {
   }
 
   const shouldVaryIncludeOrigin = optsOrigin !== '*';
-  const exposeHeaders = opts.exposeHeaders || [];
 
   return async (request: Request, response: Response): Promise<Response> => {
-    const originHeaderValue = request.headers.get(ORIGIN) || '';
+    const originHeaderValue = getHeader(request, ORIGIN) || '';
     let allowOrigin = findAllowOrigin(originHeaderValue);
     if (allowOrigin && typeof allowOrigin === 'object' && 'then' in allowOrigin) {
       allowOrigin = await allowOrigin;
@@ -90,13 +82,13 @@ export const createCors = (options?: CorsOptions) => {
     // Suppose the server sends a response with an Access-Control-Allow-Origin value with an explicit origin (rather than the "*" wildcard).
     // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin
     if (shouldVaryIncludeOrigin) {
-      setHeader(response, VARY, request.headers.get(VARY) /** existing Vary */ || ORIGIN);
+      setHeader(response, VARY, getHeader(request, VARY) /** existing Vary */ || ORIGIN);
     }
-    if (opts.credentials) {
+    if (optsCredentials) {
       setHeader(response, ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + 'Credentials', 'true');
     }
-    if (exposeHeaders.length) {
-      setHeader(response, ACCESS_CONTROL_PREFIX + 'Expose-' + HEADERS, exposeHeaders.join(','));
+    if (optsExposeHeaders?.length) {
+      setHeader(response, ACCESS_CONTROL_PREFIX + 'Expose-' + HEADERS, optsExposeHeaders.join(','));
     }
 
     let allowMethods = findAllowMethods(originHeaderValue);
@@ -108,14 +100,14 @@ export const createCors = (options?: CorsOptions) => {
     }
 
     if (request.method === 'OPTIONS') {
-      if (opts.maxAge != null) {
-        setHeader(response, ACCESS_CONTROL_PREFIX + 'Max-Age', '' + opts.maxAge);
+      if (optsMaxAge != null) {
+        setHeader(response, ACCESS_CONTROL_PREFIX + 'Max-Age', '' + optsMaxAge);
       }
 
-      let headers = opts.allowHeaders;
+      let headers = optsAllowHeaders;
       const ACCESS_CONTROL_REQUEST_HEADERS = ACCESS_CONTROL_PREFIX + 'Request-' + HEADERS;
       if (!headers?.length) {
-        const requestHeaders = request.headers.get(ACCESS_CONTROL_REQUEST_HEADERS);
+        const requestHeaders = getHeader(request, ACCESS_CONTROL_REQUEST_HEADERS);
         if (requestHeaders) {
           headers = requestHeaders.split(/\s*,\s*/);
         }
