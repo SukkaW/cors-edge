@@ -45,7 +45,6 @@
     "eslint-config-sukka": "^7.3.5",
     "eslint-formatter-sukka": "^7.3.5",
     "expect": "^30.2.0",
-    "foxts": "^4.6.0",
     "mocha": "^11.7.4",
     "typescript": "^5.9.3"
   },

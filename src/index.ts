@@ -1,5 +1,4 @@
 /* eslint-disable antfu/top-level-function -- bundle size hack */
-import { fastStringArrayJoin } from 'foxts/fast-string-array-join';
 
 export interface CorsOptions {
   origin:
@@ -97,7 +96,7 @@ export const createCors = (options?: CorsOptions) => {
       setHeader(response, ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + 'Credentials', 'true');
     }
     if (exposeHeaders.length) {
-      setHeader(response, ACCESS_CONTROL_PREFIX + 'Expose-' + HEADERS, fastStringArrayJoin(exposeHeaders, ','));
+      setHeader(response, ACCESS_CONTROL_PREFIX + 'Expose-' + HEADERS, exposeHeaders.join(','));
     }
 
     let allowMethods = findAllowMethods(originHeaderValue);
@@ -105,7 +104,7 @@ export const createCors = (options?: CorsOptions) => {
       allowMethods = await allowMethods;
     }
     if (allowMethods.length) {
-      setHeader(response, ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + 'Methods', fastStringArrayJoin(allowMethods, ','));
+      setHeader(response, ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + 'Methods', allowMethods.join(','));
     }
 
     if (request.method === 'OPTIONS') {
@@ -122,7 +121,7 @@ export const createCors = (options?: CorsOptions) => {
         }
       }
       if (headers?.length) {
-        setHeader(response, ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + HEADERS, fastStringArrayJoin(headers, ','));
+        setHeader(response, ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + HEADERS, headers.join(','));
         response.headers.append(VARY, ACCESS_CONTROL_REQUEST_HEADERS);
       }
 
