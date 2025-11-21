@@ -1,3 +1,4 @@
+/* eslint-disable antfu/top-level-function -- bundle size hack */
 import { fastStringArrayJoin } from 'foxts/fast-string-array-join';
 
 export interface CorsOptions {
@@ -25,9 +26,7 @@ const VARY = 'Vary';
 const ORIGIN = 'Origin';
 const HEADERS = 'Headers';
 
-function setHeader(response: Response, name: string, value: string) {
-  return response.headers.set(name, value);
-}
+const setHeader = (response: Response, name: string, value: string) => response.headers.set(name, value);
 
 /**
  * A very simple CORS implementation for using in simple serverless workers
@@ -46,7 +45,7 @@ function setHeader(response: Response, name: string, value: string) {
  * }
  * ```
  */
-export function createCors(options?: CorsOptions) {
+export const createCors = (options?: CorsOptions) => {
   const opts = {
     ...defaults,
     ...options
@@ -78,8 +77,9 @@ export function createCors(options?: CorsOptions) {
   }
 
   const shouldVaryIncludeOrigin = optsOrigin !== '*';
+  const exposeHeaders = opts.exposeHeaders || [];
 
-  return async function simpleCors(request: Request, response: Response): Promise<Response> {
+  return async (request: Request, response: Response): Promise<Response> => {
     const originHeaderValue = request.headers.get(ORIGIN) || '';
     let allowOrigin = findAllowOrigin(originHeaderValue);
     if (allowOrigin && typeof allowOrigin === 'object' && 'then' in allowOrigin) {
@@ -96,8 +96,8 @@ export function createCors(options?: CorsOptions) {
     if (opts.credentials) {
       setHeader(response, ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + 'Credentials', 'true');
     }
-    if (opts.exposeHeaders?.length) {
-      setHeader(response, ACCESS_CONTROL_PREFIX + 'Expose-' + HEADERS, fastStringArrayJoin(opts.exposeHeaders, ','));
+    if (exposeHeaders.length) {
+      setHeader(response, ACCESS_CONTROL_PREFIX + 'Expose-' + HEADERS, fastStringArrayJoin(exposeHeaders, ','));
     }
 
     let allowMethods = findAllowMethods(originHeaderValue);
@@ -135,4 +135,4 @@ export function createCors(options?: CorsOptions) {
 
     return response;
   };
-}
+};
