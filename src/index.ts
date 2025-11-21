@@ -20,7 +20,14 @@ const defaults: CorsOptions = {
 };
 
 const ACCESS_CONTROL_PREFIX = 'Access-Control-';
+const ALLOW_PREFIX = 'Allow-';
 const VARY = 'Vary';
+const ORIGIN = 'Origin';
+const HEADERS = 'Headers';
+
+function setHeader(response: Response, name: string, value: string) {
+  return response.headers.set(name, value);
+}
 
 /**
  * A very simple CORS implementation for using in simple serverless workers
@@ -73,30 +80,24 @@ export function createCors(options?: CorsOptions) {
   const shouldVaryIncludeOrigin = optsOrigin !== '*';
 
   return async function simpleCors(request: Request, response: Response): Promise<Response> {
-    const originHeaderValue = request.headers.get('Origin') || '';
+    const originHeaderValue = request.headers.get(ORIGIN) || '';
     let allowOrigin = findAllowOrigin(originHeaderValue);
     if (allowOrigin && typeof allowOrigin === 'object' && 'then' in allowOrigin) {
       allowOrigin = await allowOrigin;
     }
     if (allowOrigin) {
-      response.headers.set(ACCESS_CONTROL_PREFIX + 'Allow-Origin', allowOrigin);
+      setHeader(response, ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + ORIGIN, allowOrigin);
     }
     // Suppose the server sends a response with an Access-Control-Allow-Origin value with an explicit origin (rather than the "*" wildcard).
     // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin
     if (shouldVaryIncludeOrigin) {
-      const existingVary = request.headers.get(VARY);
-
-      if (existingVary) {
-        response.headers.set(VARY, existingVary);
-      } else {
-        response.headers.set(VARY, 'Origin');
-      }
+      setHeader(response, VARY, request.headers.get(VARY) /** existing Vary */ || ORIGIN);
     }
     if (opts.credentials) {
-      response.headers.set(ACCESS_CONTROL_PREFIX + 'Allow-Credentials', 'true');
+      setHeader(response, ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + 'Credentials', 'true');
     }
     if (opts.exposeHeaders?.length) {
-      response.headers.set(ACCESS_CONTROL_PREFIX + 'Expose-Headers', fastStringArrayJoin(opts.exposeHeaders, ','));
+      setHeader(response, ACCESS_CONTROL_PREFIX + 'Expose-' + HEADERS, fastStringArrayJoin(opts.exposeHeaders, ','));
     }
 
     let allowMethods = findAllowMethods(originHeaderValue);
@@ -104,24 +105,25 @@ export function createCors(options?: CorsOptions) {
       allowMethods = await allowMethods;
     }
     if (allowMethods.length) {
-      response.headers.set(ACCESS_CONTROL_PREFIX + 'Allow-Methods', fastStringArrayJoin(allowMethods, ','));
+      setHeader(response, ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + 'Methods', fastStringArrayJoin(allowMethods, ','));
     }
 
     if (request.method === 'OPTIONS') {
       if (opts.maxAge != null) {
-        response.headers.set(ACCESS_CONTROL_PREFIX + 'Max-Age', opts.maxAge.toString());
+        setHeader(response, ACCESS_CONTROL_PREFIX + 'Max-Age', '' + opts.maxAge);
       }
 
       let headers = opts.allowHeaders;
+      const ACCESS_CONTROL_REQUEST_HEADERS = ACCESS_CONTROL_PREFIX + 'Request-' + HEADERS;
       if (!headers?.length) {
-        const requestHeaders = request.headers.get(ACCESS_CONTROL_PREFIX + 'Request-Headers');
+        const requestHeaders = request.headers.get(ACCESS_CONTROL_REQUEST_HEADERS);
         if (requestHeaders) {
           headers = requestHeaders.split(/\s*,\s*/);
         }
       }
       if (headers?.length) {
-        response.headers.set(ACCESS_CONTROL_PREFIX + 'Allow-Headers', fastStringArrayJoin(headers, ','));
-        response.headers.append(VARY, ACCESS_CONTROL_PREFIX + 'Request-Headers');
+        setHeader(response, ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + HEADERS, fastStringArrayJoin(headers, ','));
+        response.headers.append(VARY, ACCESS_CONTROL_REQUEST_HEADERS);
       }
 
       // return new Response(null, {
