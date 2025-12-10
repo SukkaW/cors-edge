@@ -50,7 +50,7 @@ export const createCors = ({
   let findAllowOrigin: (origin: string) => Promise<string | undefined | null> | string | undefined | null;
   if (typeof optsOrigin === 'string') {
     if (optsOrigin === '*') {
-      findAllowOrigin = () => '*';
+      findAllowOrigin = () => optsOrigin;
     } else {
       findAllowOrigin = (origin: string) => (optsOrigin === origin ? origin : null);
     }
@@ -106,16 +106,13 @@ export const createCors = ({
         setHeader(response, ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + 'Methods', stringArrayJoinWithComma(allowMethods));
       }
 
-      let headers = optsAllowHeaders;
       const ACCESS_CONTROL_REQUEST_HEADERS = ACCESS_CONTROL_PREFIX + 'Request-' + HEADERS;
-      if (!headers?.length) {
-        const requestHeaders = getHeader(request, ACCESS_CONTROL_REQUEST_HEADERS);
-        if (requestHeaders) {
-          headers = requestHeaders.split(/\s*,\s*/);
-        }
-      }
-      if (headers?.length) {
-        setHeader(response, ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + HEADERS, stringArrayJoinWithComma(headers));
+      const allowHeader = optsAllowHeaders?.length
+        ? stringArrayJoinWithComma(optsAllowHeaders)
+        : getHeader(request, ACCESS_CONTROL_REQUEST_HEADERS);
+
+      if (allowHeader) {
+        setHeader(response, ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + HEADERS, allowHeader);
         response.headers.append(VARY, ACCESS_CONTROL_REQUEST_HEADERS);
       }
 

@@ -61,7 +61,7 @@ describe('merge-headers', () => {
 
     expect(res.status).toBe(204);
     expect(res.headers.get('Access-Control-Allow-Methods')?.split(',')[0]).toBe('GET');
-    expect(res.headers.get('Access-Control-Allow-Headers')?.split(',')).toEqual([
+    expect(res.headers.get('Access-Control-Allow-Headers')?.split(',').map(h => h.trim())).toEqual([
       'X-PINGOTHER',
       'Content-Type'
     ]);
