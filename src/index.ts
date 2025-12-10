@@ -71,6 +71,7 @@ export const createCors = ({
   }
 
   const shouldVaryIncludeOrigin = optsOrigin !== '*';
+  const exposeHeaders = optsExposeHeaders?.join(',');
 
   return async (request: Request, response: Response): Promise<Response> => {
     const originHeaderValue = getHeader(request, ORIGIN) || '';
@@ -89,8 +90,8 @@ export const createCors = ({
     if (optsCredentials) {
       setHeader(response, ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + 'Credentials', 'true');
     }
-    if (optsExposeHeaders?.length) {
-      setHeader(response, ACCESS_CONTROL_PREFIX + 'Expose-' + HEADERS, stringArrayJoinWithComma(optsExposeHeaders));
+    if (exposeHeaders) {
+      setHeader(response, ACCESS_CONTROL_PREFIX + 'Expose-' + HEADERS, exposeHeaders);
     }
 
     if (request.method === 'OPTIONS') {
