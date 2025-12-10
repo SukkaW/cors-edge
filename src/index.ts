@@ -72,6 +72,7 @@ export const createCors = ({
 
   const shouldVaryIncludeOrigin = optsOrigin !== '*';
   const exposeHeaders = optsExposeHeaders?.join(',');
+  const joinedAllowHeaders = optsAllowHeaders?.join(',');
 
   return async (request: Request, response: Response): Promise<Response> => {
     const originHeaderValue = getHeader(request, ORIGIN) || '';
@@ -108,10 +109,7 @@ export const createCors = ({
       }
 
       const ACCESS_CONTROL_REQUEST_HEADERS = ACCESS_CONTROL_PREFIX + 'Request-' + HEADERS;
-      const allowHeader = optsAllowHeaders?.length
-        ? stringArrayJoinWithComma(optsAllowHeaders)
-        : getHeader(request, ACCESS_CONTROL_REQUEST_HEADERS);
-
+      const allowHeader = joinedAllowHeaders || getHeader(request, ACCESS_CONTROL_REQUEST_HEADERS);
       if (allowHeader) {
         setHeader(response, ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + HEADERS, allowHeader);
         response.headers.append(VARY, ACCESS_CONTROL_REQUEST_HEADERS);
