@@ -20,7 +20,13 @@ const HEADERS = 'Headers';
 
 const setHeader = (response: Response, name: string, value: string) => response.headers.set(name, value);
 const getHeader = (request: Request, name: string) => request.headers.get(name);
-const stringArrayJoinWithComma = (arr: string[]) => arr.join(',');
+
+interface StringArrayJoinWithComma {
+  (arr: string[]): string,
+  (arr: undefined | null): undefined,
+  (arr: string[] | undefined | null): string | undefined
+}
+const stringArrayJoinWithComma: StringArrayJoinWithComma = ((arr) => arr?.join(',')) as StringArrayJoinWithComma;
 
 /**
  * A very simple CORS implementation for using in simple serverless workers
@@ -71,8 +77,8 @@ export const createCors = ({
   }
 
   const shouldVaryIncludeOrigin = optsOrigin !== '*';
-  const exposeHeaders = optsExposeHeaders?.join(',');
-  const joinedAllowHeaders = optsAllowHeaders?.join(',');
+  const exposeHeaders = stringArrayJoinWithComma(optsExposeHeaders);
+  const joinedAllowHeaders = stringArrayJoinWithComma(optsAllowHeaders);
 
   return async (request: Request, response: Response): Promise<Response> => {
     const originHeaderValue = getHeader(request, ORIGIN) || '';
