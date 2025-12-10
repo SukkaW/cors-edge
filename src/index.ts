@@ -20,6 +20,7 @@ const HEADERS = 'Headers';
 
 const setHeader = (response: Response, name: string, value: string) => response.headers.set(name, value);
 const getHeader = (request: Request, name: string) => request.headers.get(name);
+const stringArrayJoinWithComma = (arr: string[]) => arr.join(',');
 
 /**
  * A very simple CORS implementation for using in simple serverless workers
@@ -89,7 +90,7 @@ export const createCors = ({
       setHeader(response, ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + 'Credentials', 'true');
     }
     if (optsExposeHeaders?.length) {
-      setHeader(response, ACCESS_CONTROL_PREFIX + 'Expose-' + HEADERS, optsExposeHeaders.join(','));
+      setHeader(response, ACCESS_CONTROL_PREFIX + 'Expose-' + HEADERS, stringArrayJoinWithComma(optsExposeHeaders));
     }
 
     if (request.method === 'OPTIONS') {
@@ -102,7 +103,7 @@ export const createCors = ({
         allowMethods = await allowMethods;
       }
       if (allowMethods.length) {
-        setHeader(response, ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + 'Methods', allowMethods.join(','));
+        setHeader(response, ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + 'Methods', stringArrayJoinWithComma(allowMethods));
       }
 
       let headers = optsAllowHeaders;
@@ -114,7 +115,7 @@ export const createCors = ({
         }
       }
       if (headers?.length) {
-        setHeader(response, ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + HEADERS, headers.join(','));
+        setHeader(response, ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + HEADERS, stringArrayJoinWithComma(headers));
         response.headers.append(VARY, ACCESS_CONTROL_REQUEST_HEADERS);
       }
 
