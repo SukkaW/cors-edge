@@ -20,6 +20,7 @@ const HEADERS = 'Headers';
 
 const setHeader = (response: Response, name: string, value: string) => response.headers.set(name, value);
 const getHeader = (request: Request, name: string) => request.headers.get(name);
+
 /**
  * A very simple CORS implementation for using in simple serverless workers
  *
@@ -91,17 +92,17 @@ export const createCors = ({
       setHeader(response, ACCESS_CONTROL_PREFIX + 'Expose-' + HEADERS, optsExposeHeaders.join(','));
     }
 
-    let allowMethods = findAllowMethods(originHeaderValue);
-    if ('then' in allowMethods) {
-      allowMethods = await allowMethods;
-    }
-    if (allowMethods.length) {
-      setHeader(response, ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + 'Methods', allowMethods.join(','));
-    }
-
     if (request.method === 'OPTIONS') {
       if (optsMaxAge != null) {
         setHeader(response, ACCESS_CONTROL_PREFIX + 'Max-Age', '' + optsMaxAge);
+      }
+
+      let allowMethods = findAllowMethods(originHeaderValue);
+      if ('then' in allowMethods) {
+        allowMethods = await allowMethods;
+      }
+      if (allowMethods.length) {
+        setHeader(response, ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + 'Methods', allowMethods.join(','));
       }
 
       let headers = optsAllowHeaders;
