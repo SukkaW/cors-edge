@@ -99,7 +99,7 @@ export const createCors = ({
       setHeader(response, VARY, getHeader(request, VARY) /** existing Vary */ || ORIGIN);
     }
     if (optsCredentials) {
-      setHeader(response, ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + 'Credentials', 'true');
+      setHeader(response, ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + 'Credentials', '' + optsCredentials);
     }
     if (exposeHeaders) {
       setHeader(response, ACCESS_CONTROL_PREFIX + 'Expose-' + HEADERS, exposeHeaders);
