@@ -18,8 +18,12 @@ const VARY = 'Vary';
 const ORIGIN = 'Origin';
 const HEADERS = 'Headers';
 
-const setHeader = (response: Response, name: string, value: string) => response.headers.set(name, value);
-const getHeader = (request: Request, name: string) => request.headers.get(name);
+const { isArray } = Array;
+
+const HEADERS_ = 'headers' as const;
+
+const setHeader = (response: Response, name: string, value: string) => response[HEADERS_].set(name, value);
+const getHeader = (request: Request, name: string) => request[HEADERS_].get(name);
 
 interface StringArrayJoinWithComma {
   (arr: string[]): string,
@@ -60,18 +64,18 @@ export const createCors = ({
     } else {
       findAllowOrigin = (origin: string) => (optsOrigin === origin ? origin : null);
     }
-  } else if (typeof optsOrigin === 'function') {
-    findAllowOrigin = optsOrigin;
-  } else {
+  } else if (isArray(optsOrigin)) {
     const allowedOrigins = new Set(optsOrigin);
     findAllowOrigin = (origin: string) => (allowedOrigins.has(origin) ? origin : null);
+  } else {
+    findAllowOrigin = optsOrigin;
   }
 
   let findAllowMethods: (origin: string) => Promise<string[]> | string[];
-  if (typeof optsAllowMethods === 'function') {
-    findAllowMethods = optsAllowMethods;
-  } else if (Array.isArray(optsAllowMethods)) {
+  if (isArray(optsAllowMethods)) {
     findAllowMethods = () => optsAllowMethods;
+  } else if (typeof optsAllowMethods === 'function') {
+    findAllowMethods = optsAllowMethods;
   } else {
     findAllowMethods = () => [];
   }
@@ -118,14 +122,8 @@ export const createCors = ({
       const allowHeader = joinedAllowHeaders || getHeader(request, ACCESS_CONTROL_REQUEST_HEADERS);
       if (allowHeader) {
         setHeader(response, ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + HEADERS, allowHeader);
-        response.headers.append(VARY, ACCESS_CONTROL_REQUEST_HEADERS);
+        response[HEADERS_].append(VARY, ACCESS_CONTROL_REQUEST_HEADERS);
       }
-
-      // return new Response(null, {
-      //   headers: c.res.headers,
-      //   status: 204,
-      //   statusText: 'No Content'
-      // });
     }
 
     return response;
