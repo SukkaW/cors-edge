@@ -87,7 +87,7 @@ export const createCors = ({
   return async (request: Request, response: Response): Promise<Response> => {
     const originHeaderValue = getHeader(request, ORIGIN) || '';
     let allowOrigin = findAllowOrigin(originHeaderValue);
-    if (allowOrigin && typeof allowOrigin === 'object' && 'then' in allowOrigin) {
+    if (allowOrigin && typeof allowOrigin !== 'string') {
       allowOrigin = await allowOrigin;
     }
     if (allowOrigin) {
@@ -111,7 +111,7 @@ export const createCors = ({
       }
 
       let allowMethods = findAllowMethods(originHeaderValue);
-      if ('then' in allowMethods) {
+      if (!isArray(allowMethods)) {
         allowMethods = await allowMethods;
       }
       if (allowMethods.length) {
