@@ -36,22 +36,22 @@
   "author": "SukkaW <https://skk.moe>",
   "license": "MIT",
   "dependencies": {
-    "rollup": "^4.53.3",
+    "rollup": "^4.55.1",
     "rollup-plugin-swc3": "^0.12.1"
   },
   "devDependencies": {
     "@swc-node/register": "^1.11.1",
-    "@swc/core": "^1.15.3",
+    "@swc/core": "^1.15.8",
     "@types/mocha": "^10.0.10",
-    "bumpp": "^10.3.2",
-    "eslint": "^9.39.1",
-    "eslint-config-sukka": "^8.0.5",
-    "eslint-formatter-sukka": "^8.0.5",
+    "bumpp": "^10.4.0",
+    "eslint": "^9.39.2",
+    "eslint-config-sukka": "^8.1.0",
+    "eslint-formatter-sukka": "^8.1.0",
     "expect": "^30.2.0",
     "mocha": "^11.7.5",
     "rollup-plugin-dts": "^6.3.0",
     "typescript": "^5.9.3",
     "xbits": "^0.2.0"
   },
-  "packageManager": "pnpm@10.25.0"
+  "packageManager": "pnpm@10.28.0"
 }
