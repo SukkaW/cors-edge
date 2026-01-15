@@ -86,10 +86,7 @@ export const createCors = ({
 
   return async (request: Request, response: Response): Promise<Response> => {
     const originHeaderValue = getHeader(request, ORIGIN) || '';
-    let allowOrigin = findAllowOrigin(originHeaderValue);
-    if (allowOrigin && typeof allowOrigin !== 'string') {
-      allowOrigin = await allowOrigin;
-    }
+    const allowOrigin = await findAllowOrigin(originHeaderValue);
     if (allowOrigin) {
       setHeader(response, ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + ORIGIN, allowOrigin);
     }
@@ -110,10 +107,7 @@ export const createCors = ({
         setHeader(response, ACCESS_CONTROL_PREFIX + 'Max-Age', '' + optsMaxAge);
       }
 
-      let allowMethods = findAllowMethods(originHeaderValue);
-      if (!isArray(allowMethods)) {
-        allowMethods = await allowMethods;
-      }
+      const allowMethods = await findAllowMethods(originHeaderValue);
       if (allowMethods.length) {
         setHeader(response, ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + 'Methods', stringArrayJoinWithComma(allowMethods));
       }
