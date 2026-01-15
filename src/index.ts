@@ -22,9 +22,6 @@ const { isArray } = Array;
 
 const HEADERS_ = 'headers' as const;
 
-const setHeader = (response: Response, name: string, value: string) => response[HEADERS_].set(name, value);
-const getHeader = (request: Request, name: string) => request[HEADERS_].get(name);
-
 interface StringArrayJoinWithComma {
   (arr: string[]): string,
   (arr: undefined | null): undefined,
@@ -85,37 +82,40 @@ export const createCors = ({
   const joinedAllowHeaders = stringArrayJoinWithComma(optsAllowHeaders);
 
   return async (request: Request, response: Response): Promise<Response> => {
-    const originHeaderValue = getHeader(request, ORIGIN) || '';
+    const setHeader = (name: string, value: string) => response[HEADERS_].set(name, value);
+    const getHeader = (name: string) => request[HEADERS_].get(name);
+
+    const originHeaderValue = getHeader(ORIGIN) || '';
     const allowOrigin = await findAllowOrigin(originHeaderValue);
     if (allowOrigin) {
-      setHeader(response, ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + ORIGIN, allowOrigin);
+      setHeader(ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + ORIGIN, allowOrigin);
     }
     // Suppose the server sends a response with an Access-Control-Allow-Origin value with an explicit origin (rather than the "*" wildcard).
     // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin
     if (shouldVaryIncludeOrigin) {
-      setHeader(response, VARY, getHeader(request, VARY) /** existing Vary */ || ORIGIN);
+      setHeader(VARY, getHeader(VARY) /** existing Vary */ || ORIGIN);
     }
     if (optsCredentials) {
-      setHeader(response, ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + 'Credentials', '' + optsCredentials);
+      setHeader(ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + 'Credentials', '' + optsCredentials);
     }
     if (exposeHeaders) {
-      setHeader(response, ACCESS_CONTROL_PREFIX + 'Expose-' + HEADERS, exposeHeaders);
+      setHeader(ACCESS_CONTROL_PREFIX + 'Expose-' + HEADERS, exposeHeaders);
     }
 
     if (request.method === 'OPTIONS') {
       if (optsMaxAge != null) {
-        setHeader(response, ACCESS_CONTROL_PREFIX + 'Max-Age', '' + optsMaxAge);
+        setHeader(ACCESS_CONTROL_PREFIX + 'Max-Age', '' + optsMaxAge);
       }
 
       const allowMethods = await findAllowMethods(originHeaderValue);
       if (allowMethods.length) {
-        setHeader(response, ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + 'Methods', stringArrayJoinWithComma(allowMethods));
+        setHeader(ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + 'Methods', stringArrayJoinWithComma(allowMethods));
       }
 
       const ACCESS_CONTROL_REQUEST_HEADERS = ACCESS_CONTROL_PREFIX + 'Request-' + HEADERS;
-      const allowHeader = joinedAllowHeaders || getHeader(request, ACCESS_CONTROL_REQUEST_HEADERS);
+      const allowHeader = joinedAllowHeaders || getHeader(ACCESS_CONTROL_REQUEST_HEADERS);
       if (allowHeader) {
-        setHeader(response, ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + HEADERS, allowHeader);
+        setHeader(ACCESS_CONTROL_PREFIX + ALLOW_PREFIX + HEADERS, allowHeader);
         response[HEADERS_].append(VARY, ACCESS_CONTROL_REQUEST_HEADERS);
       }
     }
