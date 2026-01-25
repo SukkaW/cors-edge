@@ -18,7 +18,7 @@ const VARY = 'Vary';
 const ORIGIN = 'Origin';
 const HEADERS = 'Headers';
 
-const { isArray } = Array;
+const isArray = Array.isArray;
 
 const HEADERS_ = 'headers' as const;
 
