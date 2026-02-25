@@ -1,5 +1,5 @@
 import { describe, it } from 'mocha';
-import { expect } from 'expect';
+import { expect } from 'earl';
 import { createCors } from '.';
 
 describe('merge-headers', () => {
@@ -49,9 +49,9 @@ describe('merge-headers', () => {
   it('GET default', async () => {
     const res = await cors1(new Request('http://localhost/api/abc'), Response.json({}));
 
-    expect(res.status).toBe(200);
-    expect(res.headers.get('Access-Control-Allow-Origin')).toBe('*');
-    expect(res.headers.get('Vary')).toBeNull();
+    expect(res.status).toEqual(200);
+    expect(res.headers.get('Access-Control-Allow-Origin')).toEqual('*');
+    expect(res.headers.get('Vary')).toBeNullish();
   });
 
   it('Preflight default', async () => {
@@ -59,8 +59,8 @@ describe('merge-headers', () => {
     req.headers.append('Access-Control-Request-Headers', 'X-PINGOTHER, Content-Type');
     const res = await cors1(new Request(req), new Response(null, { status: 204 }));
 
-    expect(res.status).toBe(204);
-    expect(res.headers.get('Access-Control-Allow-Methods')?.split(',')[0]).toBe('PUT');
+    expect(res.status).toEqual(204);
+    expect(res.headers.get('Access-Control-Allow-Methods')?.split(',')[0]).toEqual('PUT');
     expect(res.headers.get('Access-Control-Allow-Headers')?.split(',').map(h => h.trim())).toEqual([
       'X-PINGOTHER',
       'Content-Type'
@@ -75,8 +75,8 @@ describe('merge-headers', () => {
 
     const res = await cors2(new Request(req), new Response(null, { status: 204 }));
 
-    expect(res.headers.get('Access-Control-Allow-Origin')).toBe('http://example.com');
-    expect(res.headers.get('Vary')?.split(/\s*,\s*/)).toEqual(expect.arrayContaining(['Origin']));
+    expect(res.headers.get('Access-Control-Allow-Origin')).toEqual('http://example.com');
+    expect(res.headers.get('Vary')!.split(/\s*,\s*/)).toInclude('Origin');
     expect(res.headers.get('Access-Control-Allow-Headers')?.split(/\s*,\s*/)).toEqual([
       'X-Custom-Header',
       'Upgrade-Insecure-Requests'
@@ -90,8 +90,8 @@ describe('merge-headers', () => {
       'Content-Length',
       'X-Kuma-Revision'
     ]);
-    expect(res.headers.get('Access-Control-Max-Age')).toBe('600');
-    expect(res.headers.get('Access-Control-Allow-Credentials')).toBe('true');
+    expect(res.headers.get('Access-Control-Max-Age')).toEqual('600');
+    expect(res.headers.get('Access-Control-Allow-Credentials')).toEqual('true');
   });
 
   it('Disallow an unmatched origin', async () => {
@@ -110,7 +110,7 @@ describe('merge-headers', () => {
       }
     });
     let res = await cors3(new Request(req), Response.json({}));
-    expect(res.headers.get('Access-Control-Allow-Origin')).toBe('http://example.org');
+    expect(res.headers.get('Access-Control-Allow-Origin')).toEqual('http://example.org');
 
     req = new Request('http://localhost/api3/abc');
     res = await cors3(new Request(req), Response.json({}));
@@ -139,9 +139,9 @@ describe('merge-headers', () => {
       }
     }), Response.json({}));
 
-    expect(res.status).toBe(200);
-    expect(res.headers.get('Access-Control-Allow-Origin')).toBe('http://example.com');
-    expect(res.headers.get('Vary')).toBe('accept-encoding');
+    expect(res.status).toEqual(200);
+    expect(res.headers.get('Access-Control-Allow-Origin')).toEqual('http://example.com');
+    expect(res.headers.get('Vary')).toEqual('accept-encoding');
   });
 
   it('Allow origins by function', async () => {
@@ -151,11 +151,11 @@ describe('merge-headers', () => {
       }
     });
     let res = await cors4(new Request(req), Response.json({}));
-    expect(res.headers.get('Access-Control-Allow-Origin')).toBe('http://subdomain.example.com');
+    expect(res.headers.get('Access-Control-Allow-Origin')).toEqual('http://subdomain.example.com');
 
     req = new Request('http://localhost/api4/abc');
     res = await cors4(new Request(req), Response.json({}));
-    expect(res.headers.get('Access-Control-Allow-Origin')).toBe('http://example.com');
+    expect(res.headers.get('Access-Control-Allow-Origin')).toEqual('http://example.com');
 
     req = new Request('http://localhost/api4/abc', {
       headers: {
@@ -163,7 +163,7 @@ describe('merge-headers', () => {
       }
     });
     res = await cors4(new Request(req), Response.json({}));
-    expect(res.headers.get('Access-Control-Allow-Origin')).toBe('http://example.com');
+    expect(res.headers.get('Access-Control-Allow-Origin')).toEqual('http://example.com');
   });
 
   it('Allow origins by promise returning function', async () => {
@@ -173,11 +173,11 @@ describe('merge-headers', () => {
       }
     });
     let res = await cors8(new Request(req), Response.json({}));
-    expect(res.headers.get('Access-Control-Allow-Origin')).toBe('http://subdomain.example.com');
+    expect(res.headers.get('Access-Control-Allow-Origin')).toEqual('http://subdomain.example.com');
 
     req = new Request('http://localhost/api8/abc');
     res = await cors8(new Request(req), Response.json({}));
-    expect(res.headers.get('Access-Control-Allow-Origin')).toBe('http://example.com');
+    expect(res.headers.get('Access-Control-Allow-Origin')).toEqual('http://example.com');
 
     req = new Request('http://localhost/api8/abc', {
       headers: {
@@ -185,14 +185,14 @@ describe('merge-headers', () => {
       }
     });
     res = await cors8(new Request(req), Response.json({}));
-    expect(res.headers.get('Access-Control-Allow-Origin')).toBe('http://example.com');
+    expect(res.headers.get('Access-Control-Allow-Origin')).toEqual('http://example.com');
   });
 
   it('With raw Response object', async () => {
     const res = await cors5(new Request('http://localhost/api5/abc'), Response.json({}));
 
-    expect(res.headers.get('Access-Control-Allow-Origin')).toBe('*');
-    expect(res.headers.get('Vary')).toBeNull();
+    expect(res.headers.get('Access-Control-Allow-Origin')).toEqual('*');
+    expect(res.headers.get('Vary')).toBeNullish();
   });
 
   it('Should not return duplicate header values', async () => {
@@ -202,7 +202,7 @@ describe('merge-headers', () => {
       }
     }), Response.json({}));
 
-    expect(res.headers.get('Access-Control-Allow-Origin')).toBe('http://example.com');
+    expect(res.headers.get('Access-Control-Allow-Origin')).toEqual('http://example.com');
   });
 
   it('Allow methods by function', async () => {
@@ -213,8 +213,8 @@ describe('merge-headers', () => {
       method: 'OPTIONS'
     });
     const res = await cors7(new Request(req), Response.json({}));
-    expect(res.headers.get('Access-Control-Allow-Origin')).toBe('http://example.com');
-    expect(res.headers.get('Access-Control-Allow-Methods')).toBe('GET,HEAD,POST,PATCH,DELETE');
+    expect(res.headers.get('Access-Control-Allow-Origin')).toEqual('http://example.com');
+    expect(res.headers.get('Access-Control-Allow-Methods')).toEqual('GET,HEAD,POST,PATCH,DELETE');
 
     const req2 = new Request('http://localhost/api7/abc', {
       headers: {
@@ -223,8 +223,8 @@ describe('merge-headers', () => {
       method: 'OPTIONS'
     });
     const res2 = await cors7(new Request(req2), Response.json({}));
-    expect(res2.headers.get('Access-Control-Allow-Origin')).toBe('*');
-    expect(res2.headers.get('Access-Control-Allow-Methods')).toBe('GET,HEAD');
+    expect(res2.headers.get('Access-Control-Allow-Origin')).toEqual('*');
+    expect(res2.headers.get('Access-Control-Allow-Methods')).toEqual('GET,HEAD');
   });
 
   it('Allow methods by promise returning function', async () => {
@@ -235,8 +235,8 @@ describe('merge-headers', () => {
       method: 'OPTIONS'
     });
     const res = await cors9(new Request(req), Response.json({}));
-    expect(res.headers.get('Access-Control-Allow-Origin')).toBe('http://example.com');
-    expect(res.headers.get('Access-Control-Allow-Methods')).toBe('GET,HEAD,POST,PATCH,DELETE');
+    expect(res.headers.get('Access-Control-Allow-Origin')).toEqual('http://example.com');
+    expect(res.headers.get('Access-Control-Allow-Methods')).toEqual('GET,HEAD,POST,PATCH,DELETE');
 
     const req2 = new Request('http://localhost/api9/abc', {
       headers: {
@@ -245,7 +245,7 @@ describe('merge-headers', () => {
       method: 'OPTIONS'
     });
     const res2 = await cors9(new Request(req2), Response.json({}));
-    expect(res2.headers.get('Access-Control-Allow-Origin')).toBe('*');
-    expect(res2.headers.get('Access-Control-Allow-Methods')).toBe('GET,HEAD');
+    expect(res2.headers.get('Access-Control-Allow-Origin')).toEqual('*');
+    expect(res2.headers.get('Access-Control-Allow-Methods')).toEqual('GET,HEAD');
   });
 });
