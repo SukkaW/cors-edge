@@ -59,12 +59,14 @@ export const createCors = ({
   credentials: optsCredentials = false,
   exposeHeaders: optsExposeHeaders
 }: CorsOptions = {}) => {
+  const shouldVaryIncludeOrigin = optsOrigin !== '*';
+
   let findAllowOrigin: (origin: string) => Promise<string | undefined | null> | string | undefined | null;
   if (typeof optsOrigin === 'string') {
-    if (optsOrigin === '*') {
-      findAllowOrigin = () => optsOrigin;
-    } else {
+    if (shouldVaryIncludeOrigin) { // optsOrigin !== '*'
       findAllowOrigin = (origin: string) => (optsOrigin === origin ? origin : null);
+    } else { // optsOrigin === '*'
+      findAllowOrigin = () => optsOrigin;
     }
   } else if (isArray(optsOrigin)) {
     const allowedOrigins = new Set(optsOrigin);
@@ -82,7 +84,6 @@ export const createCors = ({
     findAllowMethods = () => [];
   }
 
-  const shouldVaryIncludeOrigin = optsOrigin !== '*';
   const exposeHeaders = stringArrayJoinWithComma(optsExposeHeaders);
   const joinedAllowHeaders = stringArrayJoinWithComma(optsAllowHeaders);
 
