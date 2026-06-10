@@ -52,7 +52,8 @@ export const createCors = ({
     // These are CORS-safelisted methods, they are always allowed, regardless of whether they are specified in this header
     // https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Access-Control-Allow-Methods
     /* 'GET', 'HEAD', 'POST', */
-    'PUT', 'DELETE', 'PATCH'],
+    'PUT', 'DELETE', 'PATCH'
+  ],
   allowHeaders: optsAllowHeaders,
   maxAge: optsMaxAge,
   credentials: optsCredentials = false,
