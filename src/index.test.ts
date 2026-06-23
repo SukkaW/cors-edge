@@ -60,7 +60,7 @@ describe('merge-headers', () => {
     const res = await cors1(new Request(req), new Response(null, { status: 204 }));
 
     expect(res.status).toEqual(204);
-    expect(res.headers.get('Access-Control-Allow-Methods')?.split(',')[0]).toEqual('PUT');
+    expect(res.headers.get('Access-Control-Allow-Methods')?.split(',', 1)[0]).toEqual('PUT');
     expect(res.headers.get('Access-Control-Allow-Headers')?.split(',').map(h => h.trim())).toEqual([
       'X-PINGOTHER',
       'Content-Type'
