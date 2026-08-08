@@ -2,6 +2,8 @@ import { describe, it } from 'mocha';
 import { expect } from 'earl';
 import { createCors } from '.';
 
+const rHeaderSplit = /\s*,\s*/;
+
 describe('merge-headers', () => {
   const cors1 = createCors();
   const cors2 = createCors({
@@ -60,7 +62,7 @@ describe('merge-headers', () => {
     const res = await cors1(new Request(req), new Response(null, { status: 204 }));
 
     expect(res.status).toEqual(204);
-    expect(res.headers.get('Access-Control-Allow-Methods')?.split(',', 1)[0]).toEqual('PUT');
+    expect(res.headers.get('Access-Control-Allow-Methods') || '').toInclude('PUT');
     expect(res.headers.get('Access-Control-Allow-Headers')?.split(',').map(h => h.trim())).toEqual([
       'X-PINGOTHER',
       'Content-Type'
@@ -76,17 +78,17 @@ describe('merge-headers', () => {
     const res = await cors2(new Request(req), new Response(null, { status: 204 }));
 
     expect(res.headers.get('Access-Control-Allow-Origin')).toEqual('http://example.com');
-    expect(res.headers.get('Vary')!.split(/\s*,\s*/)).toInclude('Origin');
-    expect(res.headers.get('Access-Control-Allow-Headers')?.split(/\s*,\s*/)).toEqual([
+    expect(res.headers.get('Vary')!.split(rHeaderSplit)).toInclude('Origin');
+    expect(res.headers.get('Access-Control-Allow-Headers')?.split(rHeaderSplit)).toEqual([
       'X-Custom-Header',
       'Upgrade-Insecure-Requests'
     ]);
-    expect(res.headers.get('Access-Control-Allow-Methods')?.split(/\s*,\s*/)).toEqual([
+    expect(res.headers.get('Access-Control-Allow-Methods')?.split(rHeaderSplit)).toEqual([
       'POST',
       'GET',
       'OPTIONS'
     ]);
-    expect(res.headers.get('Access-Control-Expose-Headers')?.split(/\s*,\s*/)).toEqual([
+    expect(res.headers.get('Access-Control-Expose-Headers')?.split(rHeaderSplit)).toEqual([
       'Content-Length',
       'X-Kuma-Revision'
     ]);

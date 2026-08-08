@@ -23,9 +23,9 @@ const isArray = Array.isArray;
 const HEADERS_ = 'headers' as const;
 
 interface StringArrayJoinWithComma {
-  (arr: string[]): string,
   (arr: undefined | null): undefined,
-  (arr: string[] | undefined | null): string | undefined
+  (arr: string[] | undefined | null): string | undefined,
+  (arr: string[]): string
 }
 const stringArrayJoinWithComma: StringArrayJoinWithComma = ((arr) => arr?.join(',')) as StringArrayJoinWithComma;
 
